@@ -15,9 +15,12 @@ Posts.before.insert(function (userId, doc) {
  * Generate HTML body from Markdown when post body is updated
  */
 Posts.before.update(function (userId, doc, fieldNames, modifier) {
-  // if body is being modified, update htmlBody too
+  // if body is being modified or $unset, update htmlBody too
   if (Meteor.isServer && modifier.$set && modifier.$set.body) {
     modifier.$set.htmlBody = Telescope.utils.sanitize(marked(modifier.$set.body));
+  }
+  if (Meteor.isServer && modifier.$unset && (typeof modifier.$unset.body !== "undefined")) {
+    modifier.$unset.htmlBody = "";
   }
 });
 
@@ -56,7 +59,15 @@ Telescope.callbacks.add("postSubmitAsync", afterPostSubmitOperations);
 
 function upvoteOwnPost (post) {
   var postAuthor = Meteor.users.findOne(post.userId);
-  Telescope.upvoteItem(Posts, post, postAuthor);
+  Telescope.upvoteItem(Posts, post._id, postAuthor);
   return post;
 }
 Telescope.callbacks.add("postSubmitAsync", upvoteOwnPost);
+
+function setPostedAtOnApprove (post) {
+  // unless post is already scheduled and has a postedAt date, set its postedAt date to now
+  if (!post.postedAt) {
+    Posts.update(post._id, {postedAt: new Date()});
+  }
+}
+Telescope.callbacks.add("postApproveAsync", setPostedAtOnApprove);

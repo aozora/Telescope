@@ -86,7 +86,6 @@ Posts.edit = function (postId, modifier, post) {
 
   // ------------------------------ Callbacks ------------------------------ //
 
-  // run all post edit server callbacks on modifier successively
   modifier = Telescope.callbacks.run("postEdit", modifier, post);
 
   // ------------------------------ Update ------------------------------ //
@@ -95,7 +94,7 @@ Posts.edit = function (postId, modifier, post) {
 
   // ------------------------------ Callbacks ------------------------------ //
 
-  Telescope.callbacks.runAsync("postEditAsync", Posts.findOne(postId));
+  Telescope.callbacks.runAsync("postEditAsync", Posts.findOne(postId), post);
 
   // ------------------------------ After Update ------------------------------ //
   return Posts.findOne(postId);
@@ -115,6 +114,8 @@ Meteor.methods({
    * @param {Object} post - the post being inserted
    */
   submitPost: function(post){
+
+    check(post, Posts.simpleSchema());
 
     // required properties:
     // title
@@ -194,6 +195,10 @@ Meteor.methods({
    */
   editPost: function (modifier, postId) {
 
+    // checking might be redundant because SimpleSchema already enforces the schema, but you never know
+    check(modifier, Match.OneOf({$set: Posts.simpleSchema()}, {$unset: Object}, {$set: Posts.simpleSchema(), $unset: Object}));
+    check(postId, String);
+
     var user = Meteor.user(),
         post = Posts.findOne(postId),
         schema = Posts.simpleSchema()._schema;
@@ -225,6 +230,11 @@ Meteor.methods({
 
   setPostedAt: function(post, customPostedAt){
 
+    // this method is not actually used?
+
+    check(post, Posts.simpleSchema());
+    check(customPostedAt, Date);
+
     var postedAt = new Date(); // default to current date and time
 
     if(Users.is.admin(Meteor.user()) && typeof customPostedAt !== 'undefined') // if user is admin and a custom datetime has been set
@@ -233,32 +243,43 @@ Meteor.methods({
     Posts.update(post._id, {$set: {postedAt: postedAt}});
   },
 
-  approvePost: function(post){
+  approvePost: function(postId){
+
+    check(postId, String);
+    var post = Posts.findOne(postId);
+
     if(Users.is.admin(Meteor.user())){
-      var set = {status: 2};
 
-      // unless post is already scheduled and has a postedAt date, set its postedAt date to now
-      if (!post.postedAt)
-        set.postedAt = new Date();
+      Posts.update(post._id, {$set: {status: Posts.config.STATUS_APPROVED}});
 
-      Posts.update(post._id, {$set: set}, {validate: false});
-
-      Telescope.callbacks.runAsync("postApprovedAsync", post);
+      Telescope.callbacks.runAsync("postApproveAsync", post);
 
     }else{
       Messages.flash('You need to be an admin to do that.', "error");
     }
   },
 
-  unapprovePost: function(post){
+  rejectPost: function(postId){
+
+    check(postId, String);
+    var post = Posts.findOne(postId);
+    
     if(Users.is.admin(Meteor.user())){
-      Posts.update(post._id, {$set: {status: 1}});
+
+      Posts.update(post._id, {$set: {status: Posts.config.STATUS_REJECTED}});
+
+      Telescope.callbacks.runAsync("postRejectAsync", post);
+    
     }else{
       Messages.flash('You need to be an admin to do that.', "error");
     }
   },
 
   increasePostViews: function(postId, sessionId){
+
+    check(postId, String);
+    check(sessionId, Match.Any);
+
     this.unblock();
 
     // only let users increment a post's view counter once per session
@@ -271,6 +292,9 @@ Meteor.methods({
   },
 
   deletePostById: function(postId) {
+
+    check(postId, String);
+
     // remove post comments
     // if(!this.isSimulation) {
     //   Comments.remove({post: postId});
@@ -286,6 +310,13 @@ Meteor.methods({
 
     // delete post
     Posts.remove(postId);
+
+    Telescope.callbacks.runAsync("postDeleteAsync", post);
+
+  },
+
+  checkForDuplicates: function (url) {
+    Posts.checkForSameUrl(url);  
   }
 
 });

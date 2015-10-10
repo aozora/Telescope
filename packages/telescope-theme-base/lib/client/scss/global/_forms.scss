@@ -23,6 +23,14 @@ form, .accounts-dialog{
         margin-right:10px;
       }
     }
+    &.hide-label{
+      label{
+        display: none;
+      }
+      .controls{
+        margin-left: 0;
+      }
+    }
     .controls{
       @include medium-large{
         margin-left: 200px;
@@ -34,7 +42,7 @@ form, .accounts-dialog{
         top:2px;
         right:8px;
         &.loading{
-          background:url(/img/loading.gif) center center no-repeat;
+          background:url("/packages/telescope_core/public/img/loading.svg") center center no-repeat;
           height:22px;
           width:18px;
           @include hide-text2;
@@ -146,14 +154,14 @@ input[type="submit"], button, .button, .btn{
       margin: -10px 0 0 -10px;
       content: " ";
       display: block;
-      background:  url('/img/loading.svg');
+      background:  url("/packages/telescope_core/public/img/loading.svg");
       height: 20px;
       width: 20px;
       background-size: 20px 20px;
     }
   }
 }
-.btn-primary, .submit{
+.btn-primary{
   background:$red;
   &:link, &:hover, &:active, &:visited{
     color:white;
@@ -194,13 +202,14 @@ input[type="search"]{
 .comment-field{
   margin-bottom: 10px;
 }
-.af-fieldgroup-heading{
+.af-fieldgroup-heading, .af-fieldGroup-heading{
   display: block;
   width: 100%;
   padding-bottom: 5px;
   margin-bottom: 15px;
   border-bottom: 1px solid #B5B0B0;
   color: $light-text;
+  font-size: 20px;
 }
 fieldset{
   margin-bottom: 30px;

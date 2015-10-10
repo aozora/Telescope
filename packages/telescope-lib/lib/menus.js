@@ -19,7 +19,7 @@ Telescope.menuItems = {};
  * @example <caption>Using a route function</caption>
  * Telescope.menuItems.add("userMenu", {
  *   route: function () {
- *     return Router.path('user_profile', {_idOrSlug: Meteor.user().telescope.slug});
+ *     return FlowRouter.path('user_profile', {_idOrSlug: Meteor.user().telescope.slug});
  *   },
  *   label: 'profile',
  *   description: 'view_your_profile'
@@ -56,6 +56,14 @@ Telescope.menuItems.remove = function (menu, label) {
   Telescope.menuItems[menu] = _.reject(Telescope.menuItems[menu], function (menu) {
     return menu.label === label;
   });
+};
+
+/**
+ * Remove all items from a menu
+ * @param {string} menu - The name of the menu
+ */
+Telescope.menuItems.removeAll = function (menu) {
+  Telescope.menuItems[menu] = [];
 };
 
 /**

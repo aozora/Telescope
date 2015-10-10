@@ -1,20 +1,36 @@
+Telescope.modules.add("secondaryNav", [
+  {
+    template: 'user_menu',
+    order: 10
+  }
+]);
+
+Telescope.modules.add("mobileNav", [
+  {
+    template: 'user_menu',
+    order: 20
+  }
+]);
+
 Telescope.menuItems.add("userMenu", [
   {
     route: function () {
-      return Router.path('user_profile', {_idOrSlug: Meteor.user().telescope.slug});
+      var user = Meteor.user();
+      return FlowRouter.path('userProfile', {_idOrSlug: user && user.telescope && user.telescope.slug});
     },
     label: 'profile',
     description: 'view_your_profile'
   },
   {
     route: function () {
-      return Router.path('user_edit', {slug: Meteor.user().telescope.slug});
+      var user = Meteor.user();
+      return FlowRouter.path('userEdit', {_idOrSlug: user && user.telescope && user.telescope.slug});
     },
     label: 'edit_account',
     description: 'edit_your_profile'
   },
   {
-    route: 'settings',
+    route: 'adminSettings',
     label: 'settings',
     description: 'settings',
     adminOnly: true
@@ -29,7 +45,7 @@ Telescope.menuItems.add("userMenu", [
 // array containing items in the admin menu
 Telescope.menuItems.add("adminMenu", [
   {
-    route: 'users_dashboard',
+    route: 'adminUsers',
     label: 'users',
     description: 'users_dashboard'
   }

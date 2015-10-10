@@ -1,13 +1,30 @@
+<!--
+
+Module Component
+
+zone (String)
+| The name of zone to display
+
+zoneClass (String) [optional]
+| A class to add to the zone's wrapper div
+
+moduleClass (String) [optional]
+| A class to add to the wrapper element of each module contained in the zone
+
+moduleData (Object) [optional]
+| A data context to pass to each module
+
+wrapperId (String) [optional]
+| A unique id for the zone
+
+-->
+
 <template name="modules">
-  {{#if isDebug}}
-    <div class="zone-wrapper" data-zone="{{getZone}}">
-      {{#each getModules}}
-        {{> module}}
-      {{/each}}
-    </div>
-  {{else}}
+  <div class="{{getClass}}" data-zone="{{getZone}}" id="{{getId}}">
     {{#each getModules}}
-      {{> module}}
+      {{#if showModule}}
+        {{> Template.dynamic template=template data=moduleData}}
+      {{/if}}
     {{/each}}
-  {{/if}}
+  </div>
 </template>

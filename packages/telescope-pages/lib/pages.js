@@ -1,5 +1,7 @@
 Pages = new Mongo.Collection('pages');
 
+Telescope.subscriptions.preload('pages');
+
 Pages.schema = new SimpleSchema({
   title: {
     type: String
@@ -20,8 +22,9 @@ Pages.schema = new SimpleSchema({
   }
 });
 
-
-Pages.schema.internationalize();
+Meteor.startup(function(){
+  Pages.internationalize();
+});
 
 Pages.attachSchema(Pages.schema);
 
@@ -50,6 +53,8 @@ Meteor.startup(function () {
 
   Meteor.methods({
     insertPage: function(pageTitle, pageContent){
+      check(pageTitle, String);
+      check(pageContent, String);
       return Feeds.insert({title: pageTitle, content: pageContent});
     }
   });

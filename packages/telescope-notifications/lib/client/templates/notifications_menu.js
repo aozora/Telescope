@@ -1,20 +1,28 @@
+var getNotifications = function () {
+  return Herald.collection.find({userId: Meteor.userId(), read: false}, {sort: {timestamp: -1}}).fetch();
+};
+
 Template.notifications_menu.helpers({
+  hasNotifications: function () {
+    var notifications = getNotifications();
+    return notifications.length;
+  },
   menuLabel: function () {
     var notificationsCount;
-    var notifications=Herald.collection.find({userId: Meteor.userId(), read: false}, {sort: {timestamp: -1}}).fetch();
+    var notifications = getNotifications();
 
     if(notifications.length === 0){
-      notificationsCount = __('no_notifications');
+      notificationsCount = i18n.t('no_notifications');
     }else if(notifications.length === 1){
-      notificationsCount = __('1_notification');
+      notificationsCount = i18n.t('1_notification');
     }else{
-      notificationsCount = notifications.length+' '+ __('notifications');
+      notificationsCount = notifications.length+' '+ i18n.t('notifications');
     }
 
     return notificationsCount;
   },
   menuItems: function () {
-    var notifications=Herald.collection.find({userId: Meteor.userId(), read: false}, {sort: {timestamp: -1}}).fetch();
+    var notifications = getNotifications();
     var markAllAsRead = [{
       template: 'notifications_mark_as_read'
     }];
@@ -31,13 +39,13 @@ Template.notifications_menu.helpers({
     }
     return menuItems;
   },
-  menuMode: function () {
+  menuClass: function () {
     if (!!this.mobile) {
-      return 'list';
+      return 'menu-collapsible';
     } else if (Settings.get('navLayout', 'top-nav') === 'top-nav') {
-      return 'dropdown';
+      return 'menu-dropdown';
     } else {
-      return 'accordion';
+      return 'menu-collapsible';
     }
   }
 });

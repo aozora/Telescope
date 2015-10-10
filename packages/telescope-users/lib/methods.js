@@ -10,6 +10,10 @@ var completeUserProfile = function (modifier, userId, user) {
 
 Meteor.methods({
   completeUserProfile: function (modifier, userId) {
+    
+    check(modifier, Match.OneOf({$set: Object}, {$unset: Object}, {$set: Object, $unset: Object}));
+    check(userId, String);
+
     var currentUser = Meteor.user(),
         user = Users.findOne(userId),
         schema = Users.simpleSchema()._schema;
@@ -50,5 +54,28 @@ Meteor.methods({
     });
 
     completeUserProfile(modifier, userId, user);
+  },
+
+  removeUser: function (userId, removePosts) {
+
+    if (Users.is.adminById(this.userId)) {
+
+      removePosts = (typeof removePosts === "undefined") ? false : removePosts;
+
+      Meteor.users.remove(userId);
+
+      if (removePosts) {
+        var deletedPosts = Posts.remove({userId: userId});
+        var deletedComments = Comments.remove({userId: userId});
+        return "Deleted "+deletedPosts+" posts and "+deletedComments+" comments";
+      } else {
+        // not sure if anything should be done in that scenario yet
+        // Posts.update({userId: userId}, {$set: {author: "\[deleted\]"}}, {multi: true});
+        // Comments.update({userId: userId}, {$set: {author: "\[deleted\]"}}, {multi: true});
+      }
+    
+    }
+
   }
+
 });

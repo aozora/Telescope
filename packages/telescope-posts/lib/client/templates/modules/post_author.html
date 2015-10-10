@@ -1,3 +1,5 @@
 <template name="post_author">
-  <a class="post-author" href="{{getProfileUrl userId}}">{{getDisplayName userId}}</a>
+  <div class="{{moduleClass}}">
+    <a class="post-author" href="{{getProfileUrl userId}}">{{displayName}}</a>
+  </div>
 </template>

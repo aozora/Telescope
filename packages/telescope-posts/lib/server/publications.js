@@ -3,8 +3,11 @@ Posts._ensureIndex({"status": 1, "postedAt": 1});
 // Publish a list of posts
 
 Meteor.publish('postsList', function(terms) {
+
+  terms.userId = this.userId; // add userId to terms
+  
   if(Users.can.viewById(this.userId)){
-    var parameters = Posts.getSubParams(terms),
+    var parameters = Posts.parameters.get(terms),
         posts = Posts.find(parameters.find, parameters.options);
 
     return posts;
@@ -16,8 +19,11 @@ Meteor.publish('postsList', function(terms) {
 // plus the commenters for each post
 
 Meteor.publish('postsListUsers', function(terms) {
+  
+  terms.userId = this.userId; // add userId to terms
+  
   if(Users.can.viewById(this.userId)){
-    var parameters = Posts.getSubParams(terms),
+    var parameters = Posts.parameters.get(terms),
         posts = Posts.find(parameters.find, parameters.options),
         userIds = _.pluck(posts.fetch(), 'userId');
 
@@ -35,9 +41,12 @@ Meteor.publish('postsListUsers', function(terms) {
 
 // Publish a single post
 
-Meteor.publish('singlePost', function(id) {
+Meteor.publish('singlePost', function(postId) {
+
+  check(postId, String);
+
   if (Users.can.viewById(this.userId)){
-    return Posts.find(id);
+    return Posts.find(postId);
   }
   return [];
 });
@@ -45,6 +54,9 @@ Meteor.publish('singlePost', function(id) {
 // Publish author of the current post, authors of its comments, and upvoters of the post
 
 Meteor.publish('postUsers', function(postId) {
+
+  check(postId, String);
+
   if (Users.can.viewById(this.userId)){
     // publish post author and post commenters
     var post = Posts.findOne(postId);

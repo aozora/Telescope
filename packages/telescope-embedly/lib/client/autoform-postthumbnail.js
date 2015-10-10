@@ -38,6 +38,10 @@ var fillEmbedlyData = function (instance) {
         if (!$bodyField.val()) // if body field is empty, fill in body
           $bodyField.val(data.description);
 
+        data.url = url;
+        
+        Telescope.callbacks.run("afterEmbedlyPrefill", data);
+
       }
     });
   }
@@ -60,10 +64,14 @@ Template.afPostThumbnail.helpers({
     atts = AutoForm.Utility.addClass(atts, "form-control");
     return atts;
   },
-  style: function () {
+  outerStyle: function () {
     var thumbnailWidth = Settings.get('thumbnailWidth', 200);
     var thumbnailHeight = Settings.get('thumbnailHeight', 125);
-    return "width: "+thumbnailWidth+"px; height: "+thumbnailHeight+"px;";
+    return "max-width: "+thumbnailWidth+"px; max-height: "+thumbnailHeight+"px;";
+  },
+  innerStyle: function () {
+    var padding = Settings.get('thumbnailHeight', 125) * 100 / Settings.get('thumbnailWidth', 200);
+    return "padding-bottom: " + padding + "%";
   },
   embedlyKeyExists: function () {
     // haven't found a better way to do this yet…

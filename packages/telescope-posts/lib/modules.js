@@ -1,9 +1,3 @@
-
-Telescope.modules.add("postsListTop", {
-  template: 'posts_views_nav',
-  order: 99
-});
-
 Telescope.modules.add("postComponents", [
   {
     template: 'post_rank',
